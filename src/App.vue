@@ -6,7 +6,7 @@ import FlipBook from './components/FlipBook.vue';
   <flip-book></flip-book>
 </template>
 
-<style scoped>
+<style>
 .logo {
   height: 6em;
   padding: 1.5em;
