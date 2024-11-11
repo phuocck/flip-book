@@ -1,20 +1,27 @@
 <template>
   <div class="flipbook-viewport">
     <div class="container">
-      <draggable-box parentItem="page11" v-if="show"></draggable-box>
       <div class="flipbook">
         <div
-          id="page11"
-          class="page11"
-          style="background-image: url(01.jpg)"
+          v-for="(item, index) in pages"
+          :key="index"
+          :class="item.classes"
+          :id="`page_${item.id}`"
+          :style="{ 'background-image': `url(${item.url})` }"
         ></div>
-        <div class="double" style="background-image: url(02.jpg)"></div>
-        <div class="double" style="background-image: url(03.jpg)"></div>
-        <div class="double" style="background-image: url(04.jpg)"></div>
-        <div class="double" style="background-image: url(05.jpg)"></div>
-        <div class="double" style="background-image: url(06.jpg)"></div>
-        <div class="page" style="background-image: url(07.jpg)"></div>
       </div>
+
+      <template v-for="item in activePages" :key="item.id">
+        <draggable-box
+          :parentItem="`page_${item.id}`"
+          @drag="onDrag"
+          :id="item.id"
+          :x="item.boxMetaData?.x"
+          :y="item.boxMetaData?.y"
+        >
+          <div class="element-edit"></div>
+        </draggable-box>
+      </template>
     </div>
   </div>
 </template>
@@ -22,7 +29,16 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import DraggableBox from "./dragable/DraggableBox.vue";
-const show = ref(false);
+const props = defineProps({ pages: Array });
+const activePages = ref([]);
+
+const onDrag = (x, y, id) => {
+  const page = props.pages.find((x) => x.id === id);
+  if (page.boxMetaData) {
+    page.boxMetaData.x = x;
+    page.boxMetaData.y = y;
+  }
+};
 onMounted(() => {
   // $(".flipbook .double").scissor();
   $(".flipbook").turn({
@@ -33,8 +49,10 @@ onMounted(() => {
     // Auto center this flipbook
     autoCenter: true,
     when: {
-      turned: function (e) {
-        show.value = true;
+      turned: function (e, turnedPage, pageShowed) {
+        activePages.value = props.pages.filter((x) =>
+          pageShowed.includes(x.id) && x.boxMetaData
+        );
       },
     },
   });
@@ -43,4 +61,8 @@ onMounted(() => {
 
 <style scoped>
 @import url("double-page.css");
+.element-edit {
+  background-color: #ffffff26;
+  height: 100%;
+}
 </style>
