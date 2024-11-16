@@ -6,6 +6,7 @@ const metaDataType = {
   Video: 2,
   Image: 3,
 };
+
 const pages = ref([
   {
     id: 1,
@@ -22,7 +23,7 @@ const pages = ref([
     id: 2,
     url: "02.jpg",
     boxMetaData: {
-      type: metaDataType.Audio,
+      type: metaDataType.Image,
       x: 0,
       y: 1,
       w: 100,

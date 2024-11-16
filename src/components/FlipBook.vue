@@ -1,4 +1,7 @@
 <template>
+  <el-dialog v-model="open">
+    <component :is="dialogEditorFactory"></component>
+  </el-dialog>
   <div class="flipbook-viewport">
     <div class="container">
       <div class="flipbook">
@@ -15,11 +18,15 @@
         <draggable-box
           :parentItem="`page_${item.id}`"
           @drag="onDrag"
+          @dblclick="openEditor(item)"
           :id="item.id"
           :x="item.boxMetaData?.x"
           :y="item.boxMetaData?.y"
         >
-          <div class="element-edit"></div>
+          <box-content
+            :type="item.type"
+            :urlEmbedded="item.urlEmbedded"
+          ></box-content>
         </draggable-box>
       </template>
     </div>
@@ -27,11 +34,12 @@
 </template>
 
 <script setup>
+import BoxContent from "./draggable/box/BoxContent.vue";
 import { onMounted, ref } from "vue";
-import DraggableBox from "./dragable/DraggableBox.vue";
+import DraggableBox from "./draggable/DraggableBox.vue";
 const props = defineProps({ pages: Array });
 const activePages = ref([]);
-
+const open = ref(false);
 const onDrag = (x, y, id) => {
   const page = props.pages.find((x) => x.id === id);
   if (page.boxMetaData) {
@@ -39,6 +47,11 @@ const onDrag = (x, y, id) => {
     page.boxMetaData.y = y;
   }
 };
+const openEditor = (item) => {
+  open.value = true;
+};
+const dialogEditorFactory = () => {
+}
 onMounted(() => {
   // $(".flipbook .double").scissor();
   $(".flipbook").turn({
@@ -50,13 +63,17 @@ onMounted(() => {
     autoCenter: true,
     when: {
       turned: function (e, turnedPage, pageShowed) {
-        activePages.value = props.pages.filter((x) =>
-          pageShowed.includes(x.id) && x.boxMetaData
+        activePages.value = props.pages.filter(
+          (x) => pageShowed.includes(x.id) && x.boxMetaData
         );
       },
     },
   });
 });
+
+const fetchMetaData = () => {
+  
+}
 </script>
 
 <style scoped>
